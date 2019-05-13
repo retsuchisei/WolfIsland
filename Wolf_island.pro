@@ -25,11 +25,17 @@ DEFINES += QT_DEPRECATED_WARNINGS
 CONFIG += c++11
 
 SOURCES += \
+        field.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        rabbit.cpp \
+        wolf.cpp
 
 HEADERS += \
-        mainwindow.h
+        field.h \
+        mainwindow.h \
+        rabbit.h \
+        wolf.h
 
 FORMS += \
         mainwindow.ui
