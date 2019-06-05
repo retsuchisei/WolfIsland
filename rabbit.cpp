@@ -2,13 +2,22 @@
 #include "field.h"
 #include <vector>
 #include <QtGlobal>
+#include <QObject>
+#include <QDateTime>
+#include <QDebug>
 
 using namespace std;
 
 Rabbit::Rabbit(int x, int y)
 {
-    this->x = x;
-    this->y = y;
+    if (x > 19 || x < 0)
+        this->x = 0;
+    else
+        this->x = x;
+    if (y > 19 || y < 0)
+        this->y = 0;
+    else
+        this->y = y;
 }
 
 void Rabbit::set_x(int x) {
@@ -27,10 +36,15 @@ int Rabbit::get_y() {
     return this->y;
 }
 
-void Rabbit::move(Field field, vector<Rabbit> rabbits) {
-    if (qrand() % 10 < 2)
-        rabbits.push_back(Rabbit(this->x, this->y));
-    field.set_animal(this->x, this->y, 0);
+void Rabbit::move(Field * field, vector<Rabbit> * rabbits) {
+    qsrand(QDateTime::currentMSecsSinceEpoch());
+    if (qrand() % 10 < 2 && rabbits->size() < 50)
+        rabbits->push_back(Rabbit(this->x, this->y));
+    if (this->x > 19 || this->x < 0 || this->y > 19 || this->y < 0) {
+        this->y = 0;
+        this->x = 0;
+    }
+    field->set_animal(this->x, this->y, 0);
     int go = qrand() % 9;
     if ((go == 8 || go == 1 || go == 2) && this->y != 19) // move down
         this->set_y(this->y + 1);
@@ -43,5 +57,10 @@ void Rabbit::move(Field field, vector<Rabbit> rabbits) {
 
     if ((go == 6 || go == 7 || go == 8) && this->x != 0) // move left
         this->set_x(this->x - 1);
-    field.set_animal(this->x, this->y, 2); // 2 number = rabbit
+    if (this->x > 19 || this->x < 0 || this->y > 19 || this->y < 0) {
+        this->y = 0;
+        this->x = 0;
+    }
+    field->set_animal(this->x, this->y, 2); // 2 number = rabbit
+
 }

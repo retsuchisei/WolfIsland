@@ -1,11 +1,14 @@
 #ifndef RABBIT_H
 #define RABBIT_H
 
+#include <QObject>
 #include <vector>
 #include "field.h"
 
 class Rabbit
 {
+
+
 private:
     int x, y;
 
@@ -15,7 +18,7 @@ public:
     int get_y();
     void set_x(int x);
     void set_y(int y);
-    void move(Field field, vector<Rabbit> rabbits);
+    void move(Field * field, vector<Rabbit> * rabbits);
 };
 
 #endif // RABBIT_H

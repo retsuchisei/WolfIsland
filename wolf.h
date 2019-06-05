@@ -4,9 +4,11 @@
 #include "field.h"
 #include "rabbit.h"
 #include <vector>
+#include <QObject>
 
 class Wolf
 {
+
 private:
     bool gender;
     float health;
@@ -21,7 +23,7 @@ public:
     int get_y();
     float get_health();
     bool get_gender();
-    void move(Field field, vector<Wolf> wolfs, vector<Rabbit> rabbits);
+    void move(Field * field, vector<Wolf> * wolfs, vector<Rabbit> * rabbits, vector<Wolf>::iterator wolf);
 
 };
 

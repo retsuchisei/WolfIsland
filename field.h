@@ -8,7 +8,7 @@ using namespace std;
 class Field
 {
 private:
-    vector<vector<short>> place;
+    vector<vector<short> > place;
 
 public:
     Field();

@@ -2,6 +2,8 @@
 #include "field.h"
 #include "rabbit.h"
 #include <QtGlobal>
+#include <QDateTime>
+#include <QDebug>
 #include <vector>
 #include <iterator>
 
@@ -9,8 +11,15 @@ Wolf::Wolf(int x, int y)
 {
     this->gender = qrand() % 2;
     this->health = 1.0;
-    this->x = x;
-    this->y = y;
+
+    if (x > 19 || x < 0)
+        this->x = 0;
+    else
+        this->x = x;
+    if (y > 19 || y < 0)
+        this->y = 0;
+    else
+        this->y = y;
 }
 
 void Wolf::set_x(int x) {
@@ -41,39 +50,47 @@ bool Wolf::get_gender() {
     return this->gender;
 }
 
-vector<Rabbit>::iterator find_rabbit(int x, int y, vector<Rabbit> rabbits) {
-    for (auto it = rabbits.begin(); it != rabbits.end(); ++it) {
-        if ( (*it).get_x() == x && (*it).get_y() == y)
-            return it;
+int find_rabbit(int x, int y, vector<Rabbit> rabbits) {
+    int i = 0;
+    for (i; i < rabbits.size(); ++i) {
+        if (rabbits[i].get_x() == x && rabbits[i].get_y() == y)
+            break;
     }
+    return i < rabbits.size() ? i : -1;
 }
 
-vector<Wolf>::iterator find_she_wolf(int x, int y, vector<Wolf> wolfs) {
-    for (auto it = wolfs.begin(); it != wolfs.end(); ++it) {
-        if ( (*it).get_x() == x && (*it).get_y() == y && (*it).get_gender() == 0)
-            return it;
+int find_she_wolf(int x, int y, vector<Wolf> wolfs) {
+    int i = 0;
+    for (i; i < wolfs.size(); ++i) {
+        if (wolfs[i].get_x() == x && wolfs[i].get_y() == y && wolfs[i].get_gender() == 0)
+            break;
     }
+    return i < wolfs.size() ? i : -1;
 }
 
-void Wolf::move(Field field, vector<Wolf> wolfs, vector<Rabbit> rabbits) {
-    field.set_animal(this->x, this->y, 0);
+void Wolf::move(Field * field, vector<Wolf> * wolfs, vector<Rabbit> * rabbits, std::vector<Wolf>::iterator wolf) {
+    qsrand(int(QDateTime::currentMSecsSinceEpoch()));
+    field->set_animal(this->x, this->y, 0);
     bool hungry = 1;
-    for (int i = this->x - 1; i < i + 2; ++i) {
-        for (int j = this->y - 1; j < j + 2; ++j)
-            if (field.get_animal(i, j) == 3) {
-                auto it = find_she_wolf(i, j, wolfs);
-                wolfs.push_back(Wolf((*it).get_x(), (*it).get_y()));
+    for (int i = this->x - 1; i < this->x + 2; ++i) {
+        for (int j = this->y - 1; j < this->y + 2; ++j)
+            if (field->get_animal(i, j) == 2) {
+                auto it = find_rabbit(i, j, *rabbits);
+                rabbits->erase(rabbits->begin() + it);
+
+                field->set_animal(i, j, 0);
+                this->health += 1.0f; // Added 1 health point (- 1 rabbit(eated))
                 hungry = 0;
                 break;
             }
         if (!hungry)
             break;
     }
-    if (this->gender == 1 && hungry) {
-        for (int i = this->x - 1; i < i + 2; ++i) {
-            for (int j = this->y - 1; j < j + 2; ++j)
-                if (field.get_animal(i, j) == 1) {
-
+    if (this->gender == 1 && hungry && wolfs->size() < 50) {
+        for (int i = this->x - 1; i < this->x + 2; ++i) {
+            for (int j = this->y - 1; j < this->y + 2; ++j)
+                if (field->get_animal(i, j) == 3) {
+                    wolfs->push_back(Wolf(this->get_x(), this->get_y()));
                     hungry = 0;
                     break;
                 }
@@ -94,10 +111,20 @@ void Wolf::move(Field field, vector<Wolf> wolfs, vector<Rabbit> rabbits) {
 
         if ((go == 6 || go == 7 || go == 8) && this->x != 0) // move left
             this->set_x(this->x - 1);
+        this->health -= 0.1f;
     }
+
+    //qDebug() << "Wolf " << this->health;
+
+    if (this->health < 0.1f) {
+        field->set_animal(this->x, this->y, 0); // wolf is dead!
+        wolfs->erase(wolf);
+        return;
+    }
+
     if (this->get_gender() == 1)
-        field.set_animal(this->x, this->y, 1); // wolf
+        field->set_animal(this->x, this->y, 1); // wolf
     else
-        field.set_animal(this->x, this->y, 3); // she-wolf
+        field->set_animal(this->x, this->y, 3); // she-wolf
 
 }
